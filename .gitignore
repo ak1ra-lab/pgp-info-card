@@ -56,6 +56,3 @@ nohup.out
 
 # PDF
 *.pdf
-
-# Personal card copied from pgp-info-card-template.typ
-pgp-info-card.typ
