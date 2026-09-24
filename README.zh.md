@@ -2,17 +2,18 @@
 
 [English](README.md) · 简体中文
 
-90 × 55 mm 的双面卡片（PDF 两页），用于 OpenPGP key signing party 的线下环节：正面是密钥指纹、User ID 和需要与密钥核对的联系渠道；背面是同一指纹的 QR 码。
+[Typst](https://typst.app/) 模板，用于 OpenPGP key signing party 的线下环节，产出一张 90 × 55 mm 的卡片：正面是密钥指纹、User ID 和需要与密钥核对的联系渠道；背面是同一指纹的 QR 码。
 
-卡片是 [Typst](https://typst.app/) 模板。复制一份，改好自己的信息再编译：
+从模板新建一张卡片：
 
 ```sh
-cp pgp-info-card-template.typ pgp-info-card.typ
-$EDITOR pgp-info-card.typ
-typst compile pgp-info-card.typ
+typst init @preview/pgp-info-card:0.1.0 my-card
+cd my-card
+$EDITOR main.typ
+typst compile main.typ
 ```
 
-你的副本 `pgp-info-card.typ` 和生成的 `pgp-info-card.pdf` 都会被 git 忽略。两页双面打印，裁下卡片，多带几张。
+PDF 里是同一张卡的两个版本：第 1–2 页是单张卡（正、背），第 3–4 页是两张 A4，每张平铺十份（正面、背面）并带裁切刻度。要平铺版就用普通 A4 双面打印，再沿刻度裁开——每份都一样，双面翻页方向怎么选都能对上；只要名片大小，就打印第 1–2 页。把 `layouts` 改成 `("card",)` 或 `("a4",)` 可以只保留其中一个版本。
 
 ## 两阶段的 keysigning 流程
 
@@ -167,15 +168,27 @@ flowchart LR
 
 ## 卡片
 
-模板提供的字段（在副本 `pgp-info-card.typ` 里改）：
+模板的参数（在 `main.typ` 里改）：
 
 - `display-name`
 - `fingerprint`（每四个十六进制数字一组），显示在名字下方
-- 最多六个 `uids`（由 `max-uids` 断言限制；六个单行条目正好填满卡片，过长的 UID 会折到缩进的第二行）
-- 联系渠道：`telegram`、`matrix`、`website`、`github`
-- 一段简短的 `note`（默认 "Verify the fingerprint before trusting this key."）
+- `uids`：最多六个单行条目（由 `max-uids` 断言限制；过长的 UID 会折到缩进的第二行）
+- 联系渠道：`telegram`、`matrix`、`website`、`github`（设为 `none` 或 `""` 的渠道不会显示）
+- `note`：底部一行小字（默认 "Verify the fingerprint before trusting this key."）
+- `layouts`：输出哪个版本，默认 `("card", "a4")`，也可以只写 `("card",)` 或 `("a4",)`
 
-背面 QR 码里是去掉空格的指纹，扫出来的字符串，正好是你在阶段二下载密钥后要比对的那一串。
+每张 A4 按 2 × 5 平铺十份 90 × 55 mm 卡片，四周留 15 mm / 11 mm，边距里画 4 mm 裁切刻度。背面 QR 码里是去掉空格的指纹，扫出来的字符串，正好是你在阶段二下载密钥后要比对的那一串。
+
+## 开发
+
+仓库采用 [Typst packages](https://github.com/typst/packages) 的目录结构：`lib.typ` 是包入口，`template/` 是 `typst init` 会复制的文件。不发布、直接从 clone 测试：
+
+```sh
+mkdir -p /tmp/typst-packages/preview/pgp-info-card
+ln -s "$PWD" /tmp/typst-packages/preview/pgp-info-card/0.1.0
+typst init --package-path /tmp/typst-packages @preview/pgp-info-card:0.1.0 /tmp/my-card
+typst compile --package-path /tmp/typst-packages /tmp/my-card/main.typ
+```
 
 ## 参考资料
 
