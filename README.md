@@ -1,6 +1,8 @@
 # PGP Info Card
 
-A 90 × 55 mm single-sided card for the **in-person phase of an OpenPGP key signing party**: your key's fingerprint (human-readable and as a QR code), its purpose, and the contact channels that should be verified against the key.
+English · [简体中文](README.zh.md)
+
+A two-page 90 × 55 mm card for the **in-person phase of an OpenPGP key signing party**: the front carries your key's fingerprint, its User IDs, and the contact channels that should be verified against the key; the back carries the same fingerprint as a QR code.
 
 The card is a [Typst](https://typst.app/) template. Make your own copy, edit your details in it, and compile:
 
@@ -10,7 +12,7 @@ $EDITOR pgp-info-card.typ
 typst compile pgp-info-card.typ
 ```
 
-Both `pgp-info-card.typ` (your personal copy) and the generated `pgp-info-card.pdf` are ignored by git. Print the PDF, cut it out, and bring a stack.
+Both `pgp-info-card.typ` (your personal copy) and the generated `pgp-info-card.pdf` are ignored by git. Print both pages double-sided, cut the card out, and bring a stack.
 
 ## The two-phase keysigning process
 
@@ -134,7 +136,7 @@ flowchart LR
 
 - **Possession proof stops at the subkey.** Encrypting a challenge to an encryption subkey proves control of *that subkey's* private key, not of the primary key that issues certifications. This is the model `caff` uses and is generally accepted; if your policy demands more, ask for a fresh signature made by the primary key. A signature made by a signing subkey proves only that subkey — it still does not prove the primary key's private key.
 - **Certifications are per UID.** OpenPGP certifications are issued by the primary key over individual User IDs. Verify and certify only the UIDs whose binding you checked — the email address that answered, the pseudonym whose channel answered, the name on the ID you saw. `caff` sends one email per UID precisely for this reason.
-- **Fingerprint lengths differ.** The template is laid out for a 40-hex-digit v4 fingerprint (SHA-1). v5/v6 keys ([RFC 9580](https://www.rfc-editor.org/rfc/rfc9580.html)) have 64-hex-digit fingerprints (SHA-256) and need a wider or two-line layout.
+- **Fingerprint lengths differ.** The template is laid out for a 40-hex-digit v4 fingerprint (SHA-1). v6 keys ([RFC 9580](https://www.rfc-editor.org/rfc/rfc9580.html)) have 64-hex-digit fingerprints (SHA-256) and need a wider or two-line layout; the experimental v5 keys from the `--rfc4880bis` drafts have the same length.
 - **Publishing is the owner's call.** Never upload someone else's key or your certification to a keyserver without consent. Note that [keys.openpgp.org](https://keys.openpgp.org/about/faq) does not distribute third-party certifications by default (only first-party attested ones), so signatures made at a key signing party do not propagate through it; traditional keyservers and project keyrings (e.g. Debian's) behave differently.
 - **Certifications are revocable.** If a verification later turns out to be wrong, revoke the certification (`gpg --edit-key` → `revsig`), and keep your own key's revocation certificate somewhere safe.
 
@@ -166,13 +168,13 @@ Caveats:
 
 The template exposes the following fields (edit them in your personal `pgp-info-card.typ` copy):
 
-- `display-name`, `tagline`
-- up to three `uids`
-- `fingerprint` (formatted in groups of four hex digits) and `key-purpose` (e.g. `C / S / E`)
+- `display-name`
+- `fingerprint` (formatted in groups of four hex digits), shown under the name
+- up to six `uids` (guarded by `max-uids`; six one-line entries fill the card — a longer UID wraps onto an indented second line)
 - contact channels: `telegram`, `matrix`, `website`, `github`
 - a short `note` (defaults to "Verify the fingerprint before trusting this key.")
 
-The QR code encodes the fingerprint without whitespace, so scanning it yields exactly the string you compare against the downloaded key in Phase 2.
+The QR code on the back page encodes the fingerprint without whitespace, so scanning it yields exactly the string you compare against the downloaded key in Phase 2.
 
 ## References
 
@@ -186,7 +188,6 @@ Practical guidance and real-world events:
 
 - [Debian: Keysigning](https://www.debian.org/events/keysigning.en.html) — how to run a keysigning session.
 - [Debian Wiki: Keysigning](https://wiki.debian.org/Keysigning) and [Keysigning/Offers](https://wiki.debian.org/Keysigning/Offers)
-- [Ubuntu Wiki: KeySigningParty](https://wiki.ubuntu.com/KeySigningParty)
 - [DebConf 10 keysigning example](https://people.debian.org/~anibal/ksp-dc10/ksp-dc10.html)
 
 Tools:
