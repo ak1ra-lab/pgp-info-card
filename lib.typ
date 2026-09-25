@@ -7,7 +7,7 @@
 // The `layouts` parameter selects the output:
 //   "card" - one 90 x 55 mm card: front and back
 //   "a4"   - ten copies tiled on two A4 sheets (fronts and backs) with
-//            crop marks, for printing on plain A4 paper
+//            dashed cut guides, for printing on plain A4 paper
 
 #import "@preview/qrypst:0.1.1": qr
 
@@ -219,8 +219,9 @@
   }
 
   // A4 fits a 2 x 5 grid of 90 x 55 mm cards with 15 mm / 11 mm margins.
-  // Crop marks sit in the margins, just outside the card edges, so no cut
-  // line is printed on the cards.
+  // The grid is flush, so these are the widest margins ten cards allow;
+  // dashed guides along every card edge run from paper edge to paper edge
+  // for a ruler or guillotine to follow, without a solid line on a card.
   let sheet-pages = {
     set page(width: 210mm, height: 297mm, margin: 0mm)
 
@@ -228,50 +229,45 @@
     let rows = 5
     let margin-x = (210mm - cols * card-width) / 2
     let margin-y = (297mm - rows * card-height) / 2
-    let mark-gap = 1mm
-    let mark-length = 4mm
-    let mark-thickness = 0.2pt
+    let guide-color = rgb("B0B0AC")
+    let guide-thickness = 0.4pt
+    let guide-stroke = (
+      paint: guide-color,
+      thickness: guide-thickness,
+      dash: (array: (1.5mm, 1.2mm)),
+    )
 
-    let cut-marks() = {
+    let cut-guides() = {
       for c in range(cols + 1) {
-        let x = margin-x + c * card-width
         place(
-          dx: x - mark-thickness / 2,
-          dy: margin-y - mark-gap - mark-length,
-          rect(width: mark-thickness, height: mark-length, fill: black),
-        )
-        place(
-          dx: x - mark-thickness / 2,
-          dy: 297mm - margin-y + mark-gap,
-          rect(width: mark-thickness, height: mark-length, fill: black),
+          dx: margin-x + c * card-width - guide-thickness / 2,
+          dy: 0mm,
+          line(angle: 90deg, length: 297mm, stroke: guide-stroke),
         )
       }
       for r in range(rows + 1) {
-        let y = margin-y + r * card-height
         place(
-          dx: margin-x - mark-gap - mark-length,
-          dy: y - mark-thickness / 2,
-          rect(width: mark-length, height: mark-thickness, fill: black),
-        )
-        place(
-          dx: 210mm - margin-x + mark-gap,
-          dy: y - mark-thickness / 2,
-          rect(width: mark-length, height: mark-thickness, fill: black),
+          dx: 0mm,
+          dy: margin-y + r * card-height - guide-thickness / 2,
+          line(length: 210mm, stroke: guide-stroke),
         )
       }
     }
 
+    // The cards go in through `place` (which takes no flow space) rather
+    // than `pad`, so the guides afterwards share the page's top-left
+    // anchor and paint on top of the cards.
     let sheet(card) = {
-      pad(
-        x: margin-x,
-        y: margin-y,
+      place(
+        dx: margin-x,
+        dy: margin-y,
         grid(
           columns: (card-width,) * cols,
           rows: (card-height,) * rows,
           ..range(cols * rows).map(_ => card),
         ),
       )
-      cut-marks()
+      cut-guides()
     }
 
     sheet(card-front)

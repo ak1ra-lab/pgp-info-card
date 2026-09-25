@@ -5,8 +5,8 @@
 //   typst compile main.typ
 //
 // The PDF contains the single card (front, back) followed by two A4
-// sheets with ten copies each (fronts, backs) and crop marks. Change
-// `layouts` to ("card",) or ("a4",) to emit only one of the two.
+// sheets with ten copies each (fronts, backs) and dashed cut guides.
+// Change `layouts` to ("card",) or ("a4",) to emit only one of the two.
 
 #import "@preview/pgp-info-card:0.1.0": pgp-info-card
 
