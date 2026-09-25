@@ -1,5 +1,9 @@
 # PGP 信息卡
 
+[![GitHub](https://img.shields.io/badge/GitHub-ak1ra--lab%2Fpgp--info--card-181717?logo=github&logoColor=white)](https://github.com/ak1ra-lab/pgp-info-card)
+[![Typst 0.13+](https://img.shields.io/badge/Typst-0.13%2B-239DAD?logo=typst&logoColor=white)](https://typst.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 [English](README.md) · 简体中文
 
 [Typst](https://typst.app/) 模板，用于 OpenPGP key signing party 的线下环节，产出一张 90 × 55 mm 的卡片：正面是密钥指纹、User ID 和需要与密钥核对的联系渠道；背面是同一指纹的 QR 码。卡片周边的流程——线下怎么交换、回家认证前要核对什么——见 [key signing party 指南](docs/key-signing-party.zh.md)。

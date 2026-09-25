@@ -1,5 +1,9 @@
 # PGP Info Card
 
+[![GitHub](https://img.shields.io/badge/GitHub-ak1ra--lab%2Fpgp--info--card-181717?logo=github&logoColor=white)](https://github.com/ak1ra-lab/pgp-info-card)
+[![Typst 0.13+](https://img.shields.io/badge/Typst-0.13%2B-239DAD?logo=typst&logoColor=white)](https://typst.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 English · [简体中文](README.zh.md)
 
 A [Typst](https://typst.app/) template for a 90 × 55 mm card used at the **in-person phase of an OpenPGP key signing party**: the front carries your key's fingerprint, its User IDs, and the contact channels that should be verified against the key; the back carries the same fingerprint as a QR code. The process around the card — the in-person exchange and the checks done at home before certifying — is documented in the [key signing party guide](docs/key-signing-party.md).
