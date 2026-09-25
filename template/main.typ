@@ -18,10 +18,14 @@
     "John Smith (work) <jsmith@example.com>",
     "John Smith (alt) <jsmith@example.net>",
   ),
-  telegram: "@jsmith",
-  matrix: "@jsmith:example.org",
-  website: "https://example.org/",
-  github: "@jsmith",
+  // (label, value) pairs; labels are uppercased. The number that fits
+  // grows as UIDs shrink, and `max-contacts` overrides the automatic cap.
+  contacts: (
+    ("GitHub", "@jsmith"),
+    ("Website", "https://example.org/"),
+    ("Telegram", "@jsmith"),
+    ("Matrix", "@jsmith:example.org"),
+  ),
   note: "Verify the fingerprint before trusting this key.",
   layouts: ("card", "a4"),
 )

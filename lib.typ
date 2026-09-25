@@ -25,11 +25,17 @@
   fingerprint: "0123 4567 89AB CDEF 0123 4567 89AB CDEF 0123 4567",
 
   // --- Contact channels ---------------------------------------------------
-  // A channel set to `none` or "" is omitted from the card.
-  telegram: "@jsmith",
-  matrix: "@jsmith:example.org",
-  website: "https://example.org/",
-  github: "@jsmith",
+  // `(label, value)` pairs, rendered uppercase in a two-column grid. A
+  // pair with a `none` or "" value is omitted. How many pairs fit depends
+  // on the UID count; `max-contacts: auto` derives the cap from
+  // `uids.len()`, and an integer overrides it.
+  contacts: (
+    ("GitHub", "@jsmith"),
+    ("Website", "https://example.org/"),
+    ("Telegram", "@jsmith"),
+    ("Matrix", "@jsmith:example.org"),
+  ),
+  max-contacts: auto,
 
   note: "Verify the fingerprint before trusting this key.",
 
@@ -40,12 +46,25 @@
   body,
 ) = {
   assert(
+    type(uids) == array,
+    message: "uids must be an array of strings; a lone UID still needs a trailing comma: (\"...\",)",
+  )
+  assert(
     uids.len() <= max-uids,
     message: "at most " + str(max-uids) + " UIDs fit on this card",
   )
   assert(
     type(layouts) == array and layouts.len() > 0 and layouts.all(l => l in ("card", "a4")),
     message: "layouts must be an array containing \"card\" and/or \"a4\"",
+  )
+  assert(
+    type(contacts) == array and contacts.all(c =>
+      type(c) == array and c.len() == 2 and type(c.at(0)) == str),
+    message: "contacts must be an array of (label, value) pairs; a lone pair still needs a trailing comma: ((\"label\", \"value\"),)",
+  )
+  assert(
+    max-contacts == auto or type(max-contacts) == int,
+    message: "max-contacts must be `auto` or an integer",
   )
 
   // --- Style --------------------------------------------------------------
@@ -104,18 +123,35 @@
     ),
   )
 
-  let contacts = (
-    ("TELEGRAM", telegram),
-    ("MATRIX", matrix),
-    ("WEBSITE", website),
-    ("GITHUB", github),
-  ).filter(pair => pair.at(1) != none and pair.at(1) != "")
+  let contact-list = contacts.filter(pair => pair.at(1) != none and pair.at(1) != "")
+
+  // Contact capacity, calibrated against the card front's actual flow
+  // heights: the header, rule and empty UID row take 12.20 mm, the note
+  // adds 3.79 mm, the first UID adds 0.82 mm, every further one-line UID
+  // 3.53 mm, and every contact channel 1.49 mm. Like `max-uids`, this is
+  // a count guard: UID lines and contact values that wrap to a second
+  // line can still overflow.
+  let note-height = if note == none or note == "" { 0mm } else { 3.79mm }
+  let uid-height = if uids.len() == 0 { 0mm } else { 0.82mm + (uids.len() - 1) * 3.53mm }
+  let contact-capacity = calc.max(
+    0,
+    2 * calc.floor(
+      (card-height - 2 * card-margin - 12.20mm - note-height - uid-height) / (2 * 1.49mm),
+    ),
+  )
+  let effective-max-contacts = if max-contacts == auto { contact-capacity } else { max-contacts }
+  assert(
+    contact-list.len() <= effective-max-contacts,
+    message: "at most " + str(effective-max-contacts) + " contact channels fit with " +
+      str(uids.len()) + " UIDs (got " + str(contact-list.len()) +
+      "); trim the UIDs or raise `max-contacts`",
+  )
 
   let contact-grid = grid(
     columns: (1fr, 1fr),
     column-gutter: 2.5mm,
     row-gutter: 1.5mm,
-    ..contacts.map(pair => field(pair.at(0), pair.at(1), value-size: 6.35pt)),
+    ..contact-list.map(pair => field(upper(pair.at(0)), pair.at(1), value-size: 6.35pt)),
   )
 
   // --- Card faces ---------------------------------------------------------
@@ -146,7 +182,7 @@
       v(2.6mm)
       uid-field
       v(1fr)
-      if contacts.len() > 0 {
+      if contact-list.len() > 0 {
         contact-grid
       }
       if note != none and note != "" {
