@@ -13,16 +13,7 @@ $EDITOR main.typ
 typst compile main.typ
 ```
 
-PDF 里是同一张卡的两个版本：第 1–2 页是单张卡（正、背），第 3–4 页是两张 A4，每张平铺十份（正面、背面）并带裁切刻度。要平铺版就用普通 A4 双面打印，再沿刻度裁开——每份都一样，双面翻页方向怎么选都能对上；只要名片大小，就打印第 1–2 页。把 `layouts` 改成 `("card",)` 或 `("a4",)` 可以只保留其中一个版本。
-
-Typst 一次编译只产出一个 PDF。想从同一份输入拆成两个文件，就按页范围导出：
-
-```sh
-typst compile --pages 1-2 main.typ card.pdf    # 单张卡
-typst compile --pages 3-4 main.typ sheets.pdf  # A4 平铺
-```
-
-`--pages` 会去掉 PDF 无障碍标签并给出警告，加 `--no-pdf-tags` 可静音。
+PDF 里是同一张卡的两个版本：第 1–2 页是单张卡（正、背），第 3–4 页是两张 A4，每张平铺十份（正面、背面）并带虚线裁切参考线。要平铺版就用普通 A4 双面打印，再沿虚线裁开——每份都一样，双面翻页方向怎么选都能对上；只要名片大小，就打印第 1–2 页。
 
 ## 卡片
 
@@ -31,22 +22,23 @@ typst compile --pages 3-4 main.typ sheets.pdf  # A4 平铺
 - `display-name`
 - `fingerprint`（每四个十六进制数字一组），显示在名字下方
 - `uids`：最多六个单行条目（由 `max-uids` 断言限制；过长的 UID 会折到缩进的第二行）
-- 联系渠道：`telegram`、`matrix`、`website`、`github`（设为 `none` 或 `""` 的渠道不会显示）
+- `contacts`：`(label, value)` 渠道对，按两列排布，label 会转成大写（设为 `none` 或 `""` 的对不会显示）；UID 越少能放下的渠道越多，`max-contacts: auto` 自动计算上限，也可以直接填数字覆盖
 - `note`：底部一行小字（默认 "Verify the fingerprint before trusting this key."）
 - `layouts`：输出哪个版本，默认 `("card", "a4")`，也可以只写 `("card",)` 或 `("a4",)`
 
-每张 A4 按 2 × 5 平铺十份 90 × 55 mm 卡片，四周留 15 mm / 11 mm，边距里画 4 mm 裁切刻度。背面 QR 码里是去掉空格的指纹，扫出来的字符串，正好是你下载密钥后要比对的那一串。
+每张 A4 按 2 × 5 平铺十份 90 × 55 mm 卡片，四周留 15 mm / 11 mm。背面 QR 码里是去掉空格的指纹，扫出来的字符串，正好是你下载密钥时要核对的那一串。
 
 ## 开发
 
-仓库采用 [Typst packages](https://github.com/typst/packages) 的目录结构：`lib.typ` 是包入口，`template/` 是 `typst init` 会复制的文件。不发布、直接从 clone 测试：
+仓库采用 [Typst packages](https://github.com/typst/packages) 的目录结构：`lib.typ` 是包入口，`template/` 是 `typst init` 会复制的文件。clone 后用 [justfile](justfile) 把 checkout 软链到 Typst 的包目录（不用再带 `--package-path`），并直接编译出拆分好的 PDF：
 
 ```sh
-mkdir -p /tmp/typst-packages/preview/pgp-info-card
-ln -s "$PWD" /tmp/typst-packages/preview/pgp-info-card/0.1.0
-typst init --package-path /tmp/typst-packages @preview/pgp-info-card:0.1.0 /tmp/my-card
-typst compile --package-path /tmp/typst-packages /tmp/my-card/main.typ
+just link              # 软链到 Typst 的包目录（$XDG_DATA_HOME 或 ~/.local/share）
+just init my-card      # 用本地模板新建卡片
+just compile my-card   # card.pdf（1–2 页）与 sheet.pdf（3–4 页）
 ```
+
+发布新版本时，记得同时更新 `typst.toml` 和 justfile 里的 `version`。
 
 ## 许可证
 
