@@ -17,7 +17,8 @@ link:
 init dest: link
     typst init @{{ package }}:{{ version }} "{{ dest }}"
 
-# compile a card into card.pdf and sheet.pdf (e.g. `just compile my-card`)
+# compile a card into card.pdf and sheet.pdf (e.g. `just compile my-card`);
+# --no-pdf-tags needs Typst >= 0.14
 compile dest: link
     typst compile --no-pdf-tags --pages 1-2 "{{ dest }}/main.typ" "{{ dest }}/card.pdf"
     typst compile --no-pdf-tags --pages 3-4 "{{ dest }}/main.typ" "{{ dest }}/sheet.pdf"
